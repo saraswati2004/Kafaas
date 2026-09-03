@@ -1,7 +1,11 @@
+import os
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
-from app.core.config import settings
+from app.core.config import IS_VERCEL, settings
+
+if IS_VERCEL:
+    os.makedirs("/tmp", exist_ok=True)
 
 # Configure engine
 engine_kwargs = {

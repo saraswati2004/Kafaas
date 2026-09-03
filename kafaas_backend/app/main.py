@@ -15,14 +15,16 @@ from app.db.seed import seed_database
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager. Initializes database schema and seeds default data on startup."""
-    logger.info("Initializing KaFaaS database schema...")
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    
-    # Run seed script
-    logger.info("Verifying initial seed data...")
-    await seed_database()
-    logger.info("KaFaaS Backend started successfully.")
+    try:
+        logger.info("Initializing KaFaaS database schema...")
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        
+        logger.info("Verifying initial seed data...")
+        await seed_database()
+        logger.info("KaFaaS Backend started successfully.")
+    except Exception as e:
+        logger.error(f"Startup error: {e}", exc_info=True)
     yield
     logger.info("Shutting down KaFaaS Backend...")
 
@@ -54,8 +56,8 @@ app.add_middleware(SecurityHeadersMiddleware)
 # 2. Add CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.DEBUG else settings.CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=settings.CORS_ORIGINS if settings.CORS_ORIGINS else ["*"],
+    allow_credentials=True if settings.CORS_ORIGINS else False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
