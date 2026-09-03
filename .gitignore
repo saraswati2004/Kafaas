@@ -116,3 +116,7 @@ Thumbs.db
 *.orig
 *.rej
 .Directory
+
+# ── Vercel CLI local project link ───────────────────────────────────
+.vercel/
+.env*.local
